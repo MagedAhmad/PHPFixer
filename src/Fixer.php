@@ -7,6 +7,9 @@ use Symfony\Component\Finder\Finder;
 class Fixer 
 {
     protected $finder;
+    protected $patterns  = [
+        'fixClass', 'fixFunctions'
+    ];
 
     public function __construct()
     {
@@ -16,13 +19,23 @@ class Fixer
     public function run()
     {
         $this->iterateFiles();
-        
+
         if(!$this->finder->hasResults()) {
             return 'No Files to Fix';
         }
         
         foreach($this->finder as $file) {
-            $this->scan($file);
+            $this->fixFile($file);
+        }
+    }
+
+    public function fixFile($file)
+    {
+        foreach($this->patterns as $pattern) {
+            $contents = $this->read($file);
+            $results = $this->$pattern($contents);
+    
+            file_put_contents($file, $results);
         }
     }
 
@@ -31,19 +44,19 @@ class Fixer
         $this->finder->files()->name('*.php')->notName('Fixer.php')->in(__DIR__);
     }
 
-    public function scan($fileName)
+    public function read($fileName)
     {
         if (!file_exists($fileName)) {
             echo 'File doesn\'t exist';
+            
             exit;
         }
-        $contents = file($fileName);
         echo 'Processing: ' . $fileName . PHP_EOL;
-        
-        $this->fixFile($fileName, $contents);
+
+        return file($fileName);
     }
 
-    public function fixFile(string $fileName, array $contents)
+    public function fixClass(array $contents)
     {
         $result = preg_replace_callback_array([
             '!class (.*?)[ ]?{!' =>
@@ -51,14 +64,23 @@ class Fixer
                 return 'class '. trim($match[1]) . PHP_EOL .'{';
             },
         ], $contents);
+
+        
+        $results = implode('', $result);
+        
+        return $results;
+    }
+
+    public function fixFunctions(array $contents)
+    {
         $result = preg_replace_callback_array([
             '!function(.*?)[ ]?{!' =>
             function ($match) {
                 return 'function '. trim($match[1]) . "\n\t{";
             },
         ], $contents);
-        
         $results = implode('', $result);
-        file_put_contents($fileName, $result);
+        
+        return $results;
     }
 }
