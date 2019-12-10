@@ -1,0 +1,24 @@
+{
+    "name": "maged-ahmed/php-fixer",
+    "type": "library",
+    "description": "A tool to automatically fix PHP Coding Standards issues",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Maged Ahmad",
+            "email": "maged.ahmedr@gmail.com"
+        }
+    ],
+    "autoload": {
+      "psr-4": {
+        "PHPFixer\\": "src/"
+      }
+    },
+    "require": {
+      "symfony/console": "^4.3",
+        "symfony/finder": "^5.0"
+    },
+    "require-dev": {
+      "phpunit/phpunit": "^8"
+    }
+}
