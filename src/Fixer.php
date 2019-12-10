@@ -28,10 +28,8 @@ class Fixer
 
     public function iterateFiles()
     {
-        $this->finder->files()->in(__DIR__);
+        $this->finder->files()->name('*.php')->notName('Fixer.php')->in(__DIR__);
     }
-
-    
 
     public function scan($fileName)
     {
@@ -42,14 +40,25 @@ class Fixer
         $contents = file($fileName);
         echo 'Processing: ' . $fileName . PHP_EOL;
         
+        $this->fixFile($fileName, $contents);
+    }
+
+    public function fixFile(string $fileName, array $contents)
+    {
         $result = preg_replace_callback_array([
-            '!class (.*? )*{!' =>
+            '!class (.*?)[ ]?{!' =>
             function ($match) {
                 return 'class '. trim($match[1]) . PHP_EOL .'{';
             },
-        ], $contents); 
+        ], $contents);
+        $result = preg_replace_callback_array([
+            '!function(.*?)[ ]?{!' =>
+            function ($match) {
+                return 'function '. trim($match[1]) . "\n\t{";
+            },
+        ], $contents);
+        
         $results = implode('', $result);
         file_put_contents($fileName, $result);
-        return implode('', $result);
     }
 }
