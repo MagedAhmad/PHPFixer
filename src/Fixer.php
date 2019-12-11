@@ -2,8 +2,6 @@
 
 namespace PHPFixer;
 
-use Symfony\Component\Finder\Finder;
-
 class Fixer 
 {
     protected $finder;
@@ -12,7 +10,6 @@ class Fixer
 
     public function __construct()
     {
-        $this->finder = new Finder;
         $this->pattern = new Pattern;
         $this->reader = new Reader;
     }
